@@ -1,4 +1,4 @@
-# go_link_shortener
+# Go Link Shortener [WIP]
 
 ![Size](https://img.shields.io/github/repo-size/appuchias/go_link_shortener?color=orange&style=flat-square)
 [![Author](https://img.shields.io/badge/Project%20by-Appu-9cf?style=flat-square)](https://github.com/appuchias)
@@ -17,6 +17,6 @@ It may include some statistics in the future.
 
 ## License
 
-This code is licensed under the [GPLv3 license](REPO_URL/blob/master/LICENSE).
+This code is licensed under the [GPLv3 license](https://github.com/appuchias/go_link_shortener/blob/master/LICENSE).
 
 Coded with 🖤 by Appu
