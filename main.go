@@ -6,22 +6,27 @@ import (
 	"net/http"
 
 	"github.com/appuchias/go_link_shortener/admin"
+	"github.com/appuchias/go_link_shortener/db"
 	"github.com/appuchias/go_link_shortener/middleware"
 )
 
-const port int16 = 8080
+const port int16 = 8000
 
 func main() {
-	router := http.NewServeMux()
-	router.Handle("/admin/", http.StripPrefix("/admin", admin.AdminRouter))
-	router.HandleFunc("GET /{route}", func(w http.ResponseWriter, r *http.Request) {
-		if r.PathValue("route") == "admin" {
-			http.Redirect(w, r, "/admin/", http.StatusMovedPermanently)
-			return
-		}
+	// Connect to the database and close the connection when the server is stopped
+	database := db.Connect()
+	defer database.Close()
 
-		fmt.Fprint(w, r.PathValue("route"))
-	})
+	// Start the server
+	s := Server()
+	log.Fatal(s.ListenAndServe())
+}
+
+func Server() *http.Server {
+	router := http.NewServeMux()
+	router.Handle("GET /admin/", http.StripPrefix("/admin", admin.AdminRouter))
+	router.HandleFunc("GET /", shortenerHandler)
+	router.HandleFunc("GET /{route}", shortenerHandler)
 
 	middlewareStack := middleware.Chain(
 		middleware.Logging,
@@ -32,7 +37,30 @@ func main() {
 		Addr:    fmt.Sprintf(":%d", port),
 		Handler: middlewareStack(router),
 	}
-
 	fmt.Println("Server is running on port", port)
-	log.Fatal(s.ListenAndServe())
+
+	return s
+}
+
+func shortenerHandler(w http.ResponseWriter, r *http.Request) {
+	var err error
+	route := r.PathValue("route")
+
+	if route == "" || route == "admin" {
+		http.Redirect(w, r, "/admin/", http.StatusMovedPermanently)
+		return
+	}
+
+	// Get the URL from the database and do the redirect
+	var dst string
+	dst, err = db.GetURLRedirect(route)
+	if err != nil {
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+	}
+	if dst == "" {
+		http.Error(w, "Not found", http.StatusNotFound)
+	}
+
+	http.Redirect(w, r, dst, http.StatusTemporaryRedirect)
+
 }
