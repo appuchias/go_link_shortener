@@ -5,6 +5,21 @@
 
 <p>Welcome, {{ .Username }}!</p>
 
-<p><a href="/admin/urls">URLs</a></p>
-<p><a href="/admin/logout">Logout</a></p>
+{{ if .URLs }}
+<h2>Your short URLs</h2>
+<ul>
+    {{ range .URLs }}
+    <li><a href="/{{ .ShortURL }}">{{ .ShortURL }}</a> - {{ .LongURL }}</li>
+    {{ end }}
+</ul>
+
+{{/*<h2>Actions</h2>
+<form action="/admin/url/delete" method="post">
+    <label for="shorturl">Short URL:</label>
+    <input type="text" id="shorturl" name="shorturl" required>
+    <button type="submit">Delete</button>
+</form>*/}}
+{{ end }}
+
+{{/* <p><a href="/admin/logout">Logout</a></p> */}}
 {{ end }}

@@ -76,7 +76,7 @@ func createTables(db *sql.DB) {
 		owner INTEGER NOT NULL,
 		src TEXT NOT NULL,
 		dst TEXT NOT NULL,
-		is_slug BOOLEAN NOT NULL,
+		is_custom BOOLEAN NOT NULL,
 		FOREIGN KEY (owner) REFERENCES User(id_user)
 	);`)
 	if err != nil {
@@ -121,4 +121,30 @@ func GetURLRedirect(src string) (string, error) {
 		return "", err
 	}
 	return dst, nil
+}
+
+type URL struct {
+	ShortURL string
+	LongURL  string
+}
+
+func GetUserURLs(username string) ([]URL, error) {
+	rows, err := db.Query("SELECT src, dst FROM Link WHERE owner = (SELECT id_user FROM User WHERE username = ?)", username)
+	if err != nil {
+		log.Println("Error getting URLs from DB:", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	urls := []URL{}
+	for rows.Next() {
+		var src, dst string
+		if err := rows.Scan(&src, &dst); err != nil {
+			log.Println("Error scanning URLs from DB:", err)
+			return nil, err
+		}
+		urls = append(urls, URL{ShortURL: src, LongURL: dst})
+	}
+
+	return urls, nil
 }

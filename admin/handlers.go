@@ -28,8 +28,18 @@ func adminHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	urls, err := db.GetUserURLs(username)
+	if err != nil {
+		log.Println("Error getting user URLs", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+
 	// Execute the admin template
-	err = adminTemplate.Execute(w, struct{ Username string }{Username: username})
+	err = adminTemplate.Execute(w, struct {
+		Username string
+		URLs     []db.URL
+	}{Username: username, URLs: urls})
 	if err != nil {
 		log.Println("Error executing admin template", err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
