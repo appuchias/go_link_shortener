@@ -60,7 +60,7 @@ func createTables(db *sql.DB) {
 		key TEXT NOT NULL,
 		api BOOLEAN NOT NULL DEFAULT 0,
 		PRIMARY KEY (id_user, valid_from),
-		FOREIGN KEY (id_user) REFERENCES User(id_user)
+		FOREIGN KEY (id_user) REFERENCES User(id_user) ON DELETE CASCADE
 	);`)
 	if err != nil {
 		log.Fatal("Error creating Session table:", err)
@@ -93,10 +93,24 @@ func createTables(db *sql.DB) {
 		datetime INTEGER NOT NULL,
 		user_agent TEXT,
 		PRIMARY KEY (id_link, datetime),
-		FOREIGN KEY (id_link) REFERENCES Link(id_link)
+		FOREIGN KEY (id_link) REFERENCES Link(id_link) ON DELETE CASCADE
 	);`)
 	if err != nil {
 		log.Fatal("Error creating Visit table:", err)
+	}
+
+	// SQLite options
+	_, err = db.Exec("PRAGMA foreign_keys = ON;")
+	if err != nil {
+		log.Fatal("Error enabling foreign keys in SQLite:", err)
+	}
+	_, err = db.Exec("PRAGMA journal_mode = WAL;")
+	if err != nil {
+		log.Fatal("Error setting journal mode in SQLite:", err)
+	}
+	_, err = db.Exec("PRAGMA synchronous = NORMAL;")
+	if err != nil {
+		log.Fatal("Error setting synchronous mode in SQLite:", err)
 	}
 }
 
