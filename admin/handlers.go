@@ -116,7 +116,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Redirect to the admin panel
-	http.Redirect(w, r, "/", http.StatusFound)
+	http.Redirect(w, r, "/admin", http.StatusFound)
 }
 
 func logoutHandler(w http.ResponseWriter, r *http.Request) {
