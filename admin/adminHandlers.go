@@ -51,7 +51,7 @@ func adminHandler(w http.ResponseWriter, r *http.Request) {
 func loginHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		// Redirect authenticated users to the admin panel
-		sessionid, err := db.GetSessionIDFromRequest(r)
+		sessionid, err := db.GetKeyFromRequest(r)
 		if err == nil && db.IsSessionIDValid(sessionid) {
 			http.Redirect(w, r, "/admin", http.StatusFound)
 			return
@@ -139,7 +139,7 @@ func logoutHandler(w http.ResponseWriter, r *http.Request) {
 	})
 
 	// Invalidate the session ID
-	sessionid, err := db.GetSessionIDFromRequest(r)
+	sessionid, err := db.GetKeyFromRequest(r)
 	if err == nil {
 		db.InvalidateSessionID(sessionid)
 	}

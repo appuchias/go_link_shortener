@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/appuchias/go_link_shortener/admin"
+	"github.com/appuchias/go_link_shortener/api"
 	"github.com/appuchias/go_link_shortener/db"
 	"github.com/appuchias/go_link_shortener/middleware"
 )
@@ -25,7 +26,8 @@ func main() {
 
 func server() *http.Server {
 	router := http.NewServeMux()
-	router.Handle("/admin/", middleware.RequireAuth(http.StripPrefix("/admin", admin.AdminRouter)))
+	router.Handle("/admin/", middleware.UserAuth(http.StripPrefix("/admin", admin.AdminRouter)))
+	router.Handle("/rest/", middleware.APIAuth(http.StripPrefix("/rest", api.APIRouter)))
 	router.HandleFunc("/", http.RedirectHandler("/admin/", http.StatusMovedPermanently).ServeHTTP)
 	router.HandleFunc("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {
 		imgbuf, err := os.ReadFile("static/favicon.ico")

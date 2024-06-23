@@ -8,14 +8,18 @@ import (
 	"time"
 )
 
-func GetSessionIDFromRequest(r *http.Request) (string, error) {
+func GetKeyFromRequest(r *http.Request) (string, error) {
 	cookie, err := r.Cookie("sessionid")
-	if err != nil {
-		log.Println("Error getting sessionid cookie:", err)
-		return "", err
+	if err == nil {
+		return cookie.Value, nil
 	}
 
-	return cookie.Value, nil
+	header := r.Header.Get("X-Api-Key")
+	if header != "" {
+		return header, nil
+	}
+
+	return "", err
 }
 
 func HashPassword(password, salt string) string {

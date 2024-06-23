@@ -11,7 +11,7 @@ var excludedPaths = []string{
 	"/admin/login",
 }
 
-func RequireAuth(next http.Handler) http.Handler {
+func UserAuth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Check if the path is excluded
 		for _, path := range excludedPaths {
@@ -22,9 +22,22 @@ func RequireAuth(next http.Handler) http.Handler {
 		}
 
 		// Validate the session
-		sessionid, err := db.GetSessionIDFromRequest(r)
+		sessionid, err := db.GetKeyFromRequest(r)
 		if err != nil || sessionid == "" || !db.IsSessionIDValid(sessionid) {
 			http.Redirect(w, r, "/admin/login?next="+r.URL.Path, http.StatusSeeOther)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}
+
+func APIAuth(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Validate the session
+		sessionid, err := db.GetKeyFromRequest(r)
+		if err != nil || sessionid == "" || !db.IsAPIKeyValid(sessionid) {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
 		}
 
