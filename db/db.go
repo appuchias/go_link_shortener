@@ -117,20 +117,35 @@ func GetURLRedirect(src string) (string, error) {
 	return dst, nil
 }
 
+// Get the information of the session ID
+func getSessionIDDetails(sessionid string) (int, int, int, bool, error) {
+	var id_user, valid_from, valid_until int
+	var api bool
+	err := db.QueryRow("SELECT id_user, valid_from, valid_until, api FROM Session WHERE key = ?", sessionid).Scan(&id_user, &valid_from, &valid_until, &api)
+	if err != nil {
+		log.Println("Error getting sessionid details from DB:", err)
+		return 0, 0, 0, false, err
+	}
+
+	return id_user, valid_from, valid_until, api, nil
+}
+
+// The session ID exists, is valid, and is not an API key
 func IsSessionIDValid(sessionid string) bool {
-	var valid_from, valid_until int64
-	err := db.QueryRow("SELECT valid_from, valid_until FROM Session WHERE key = ?", sessionid).Scan(&valid_from, &valid_until)
-	if err == sql.ErrNoRows {
-		// log.Println("No rows found")
-		return false
-	} else if err != nil {
-		log.Println("Error checking if sessionid is valid:", err)
+	_, valid_from, valid_until, api, err := getSessionIDDetails(sessionid)
+	if err != nil {
 		return false
 	}
 
-	if valid_from < time.Now().Unix() && valid_until > time.Now().Unix() {
-		return true
+	return valid_from < int(time.Now().Unix()) && valid_until > int(time.Now().Unix()) && !api
+}
+
+// The session ID exists, is valid, and is an API key
+func IsAPIKeyValid(apikey string) bool {
+	_, valid_from, valid_until, api, err := getSessionIDDetails(apikey)
+	if err != nil {
+		return false
 	}
 
-	return false
+	return valid_from < int(time.Now().Unix()) && valid_until > int(time.Now().Unix()) && api
 }
