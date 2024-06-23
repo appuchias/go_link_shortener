@@ -32,16 +32,23 @@ func createTables(db *sql.DB) {
 	// User
 	_, err := db.Exec(`CREATE TABLE IF NOT EXISTS User (
 		id_user INTEGER PRIMARY KEY,
-		username TEXT NOT NULL,
+		username TEXT UNIQUE NOT NULL,
 		salt TEXT NOT NULL,
 		pwd TEXT NOT NULL
 	);`)
 	if err != nil {
 		log.Fatal("Error creating User table:", err)
 	}
-	_, err = db.Exec(`INSERT INTO User (username, salt, pwd) VALUES ("admin", "salt", "password");`)
+	var user_count int
+	err = db.QueryRow("SELECT COUNT(*) FROM User").Scan(&user_count)
 	if err != nil {
-		log.Fatal("Error inserting user into User table:", err)
+		log.Fatal("Error counting users in User table:", err)
+	}
+	if user_count == 0 {
+		_, err = db.Exec(`INSERT INTO User (username, salt, pwd) VALUES ("admin", "salt", "password");`)
+		if err != nil {
+			log.Fatal("Error inserting user into User table:", err)
+		}
 	}
 
 	// Session
