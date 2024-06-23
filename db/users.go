@@ -9,7 +9,7 @@ import (
 
 const validChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_"
 
-func randStringBytes(n int) string {
+func RandString(n int) string {
 	b := make([]byte, n)
 	for i := range b {
 		b[i] = validChars[rand.Intn(len(validChars))]
@@ -30,7 +30,7 @@ func GetUserDetails(username string) (int, string, string, error) {
 }
 
 func CreateUser(username string, password string) error {
-	salt := randStringBytes(16)
+	salt := RandString(16)
 
 	_, err := db.Exec("INSERT INTO User (username, salt, pwd) VALUES (?, ?, ?)", username, salt, HashPassword(password, salt))
 	if err != nil {
@@ -56,7 +56,7 @@ func getUsername(id_user int) (string, error) {
 
 func NewSessionID(id_user int, valid_until int, api bool) (string, error) {
 	// Generate a random key
-	key := randStringBytes(32)
+	key := RandString(32)
 
 	// Insert the session ID into the database
 	_, err := db.Exec("INSERT INTO Session (id_user, valid_from, valid_until, key, api) VALUES (?, ?, ?, ?, ?)", id_user, time.Now().Unix(), valid_until, key, api)
@@ -82,7 +82,7 @@ func getSessionIDDetails(sessionid string) (int, int, int, bool, error) {
 }
 
 // Get the user ID from the session ID
-func getUserIDFromSessionID(sessionid string) (int, error) {
+func GetUserIDFromSessionID(sessionid string) (int, error) {
 	id_user, _, _, _, err := getSessionIDDetails(sessionid)
 	if err != nil {
 		return 0, err
@@ -98,7 +98,7 @@ func GetCurrentUsername(r *http.Request) (string, error) {
 		return "", err
 	}
 
-	id_user, err := getUserIDFromSessionID(sessionid)
+	id_user, err := GetUserIDFromSessionID(sessionid)
 	if err != nil {
 		return "", err
 	}
