@@ -3,6 +3,7 @@ package admin
 import (
 	"html/template"
 	"log"
+	"math/rand"
 	"net/http"
 	"time"
 
@@ -116,6 +117,9 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		HttpOnly: true, // No JS
 		// Secure:   true, // HTTPS only
 	})
+
+	// Sleep randomly to prevent timing attacks
+	time.Sleep(time.Duration(rand.Intn(1000)) * time.Millisecond)
 
 	// Redirect to the next page
 	if r.URL.Query().Get("next") != "" {
