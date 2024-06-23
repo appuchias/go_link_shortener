@@ -20,7 +20,7 @@
         <td>{{ .Dst }}</td>
         <td>{{ if .IsCustom }}Yes{{ else }}No{{ end }}</td>
         <td>
-            <a hx-get="/admin/urls/{{ .IDLink }}/edit" hx-target="#row-{{ .IDLink }}" hx-swap="outerHTML">Edit</a>
+            <a hx-get="/admin/urls/edit/{{ .IDLink }}" hx-target="#row-{{ .IDLink }}" hx-swap="outerHTML">Edit</a>
             <a hx-delete="/admin/urls/{{ .IDLink }}" hx-target="#row-{{ .IDLink }}" hx-swap="outerHTML">Delete</a>
     </tr>
     {{ end }}
