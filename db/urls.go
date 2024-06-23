@@ -58,3 +58,12 @@ func GetURLDetails(id_link int) (URL, error) {
 	}
 	return URL{IDLink: id_link, Src: src, Dst: dst, IsCustom: isCustom}, nil
 }
+
+func AddURL(owner int, src string, dst string, isCustom bool) error {
+	_, err := db.Exec("INSERT INTO Link (owner, src, dst, is_custom) VALUES (?, ?, ?, ?)", owner, src, dst, isCustom)
+	if err != nil {
+		log.Println("Error adding URL to DB:", err)
+		return err
+	}
+	return nil
+}

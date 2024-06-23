@@ -49,7 +49,45 @@ func editableURLHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func addURLHandler(w http.ResponseWriter, r *http.Request) {
-	http.Error(w, "Not implemented", http.StatusNotImplemented)
+	// Parse the form
+	err := r.ParseForm()
+	if err != nil {
+		http.Error(w, "Bad request", http.StatusBadRequest)
+		return
+	}
+
+	// Get the fields from the form
+	src := r.FormValue("shorturl")
+	dst := r.FormValue("longurl")
+	isCustom := true
+
+	if src == "" {
+		isCustom = false
+		src = db.RandString(6)
+	}
+
+	sessionid, err := db.GetKeyFromRequest(r)
+	if err != nil {
+		log.Println("Error getting session ID", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+	id_user, err := db.GetUserIDFromSessionID(sessionid)
+	if err != nil {
+		log.Println("Error getting user ID from session ID", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+
+	// Add the URL to the database
+	err = db.AddURL(id_user, src, dst, isCustom)
+	if err != nil {
+		log.Println("Error adding URL to the database", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+
+	http.Redirect(w, r, "/admin/", http.StatusFound)
 }
 
 func updateURLHandler(w http.ResponseWriter, r *http.Request) {

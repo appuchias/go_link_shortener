@@ -30,14 +30,14 @@
 <h2>Actions</h2>
 
 <h3>Add short URL</h3>
-<form hx-post="/admin/url/add" hx-target="#add-url">
+<form action="/admin/urls/add" method="post">
     <label for="shorturl">URL path (optional):</label>
     https://yourdomain.com/<input type="text" id="shorturl" name="shorturl">
     <br>
     <label for="longurl">Redirect URL:</label>
     <input type="url" id="longurl" name="longurl" required>
     <br>
-    <button type="submit" hx->Add</button>
+    <button type="submit">Add</button>
 </form>
 
 
