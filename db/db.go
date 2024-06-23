@@ -87,7 +87,7 @@ func createTables(db *sql.DB) {
 	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS Visit (
 		id_link INTEGER NOT NULL,
 		datetime INTEGER NOT NULL,
-		user_agent TEXT NOT NULL,
+		user_agent TEXT,
 		PRIMARY KEY (id_link, datetime),
 		FOREIGN KEY (id_link) REFERENCES Link(id_link)
 	);`)
