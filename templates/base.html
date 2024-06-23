@@ -18,6 +18,9 @@
         <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap"
             rel="stylesheet">
 
+        <!-- htmx -->
+        <script src="https://unpkg.com/htmx.org@2.0.0"></script>
+
         <!-- CSS -->
         <style type="text/css">
             body {
@@ -62,6 +65,37 @@
                 min-height: calc(100vh - 2rem);
                 margin: 0 auto;
                 padding: 1rem;
+            }
+
+            #urlsTable {
+                width: 100%;
+                border-collapse: collapse;
+            }
+
+            #urlsTable th,
+            #urlsTable td {
+                border: 1px solid #dee2e6;
+                padding: 0.5rem;
+            }
+
+            #urlsTable th {
+                background-color: #f8f9fa;
+            }
+
+            #urlsTable tr:nth-child(odd) {
+                background-color: #f8f9fa;
+            }
+
+            #urlsTable tr:nth-child(even) {
+                background-color: #fff;
+            }
+
+            #urlsTable tr:hover {
+                background-color: #f1f1f1;
+            }
+
+            #urlsTable td:nth-child(3) {
+                text-align: center;
             }
         </style>
     </head>

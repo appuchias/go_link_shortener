@@ -25,8 +25,8 @@ func main() {
 
 func server() *http.Server {
 	router := http.NewServeMux()
-	router.HandleFunc("/", http.RedirectHandler("/admin/", http.StatusMovedPermanently).ServeHTTP)
 	router.Handle("/admin/", middleware.RequireAuth(http.StripPrefix("/admin", admin.AdminRouter)))
+	router.HandleFunc("/", http.RedirectHandler("/admin/", http.StatusMovedPermanently).ServeHTTP)
 	router.HandleFunc("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {
 		imgbuf, err := os.ReadFile("static/favicon.ico")
 		if err != nil {

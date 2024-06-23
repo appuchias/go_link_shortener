@@ -7,19 +7,37 @@
 
 {{ if .URLs }}
 <h2>Your short URLs</h2>
-<ul>
+<table id="urlsTable">
+    <tr>
+        <th>URL path</th>
+        <th>Redirect URL</th>
+        <th>Custom</th>
+        <th>Options</th>
+    </tr>
     {{ range .URLs }}
-    <li><a href="/{{ .ShortURL }}">{{ .ShortURL }}</a> - {{ .LongURL }}</li>
+    <tr>
+        <td><span style="color: #7f7f7f">https://yourdomain.com/</span>{{ .Src }}</td>
+        <td>{{ .Dst }}</td>
+        <td>{{ if .IsCustom }}Yes{{ else }}No{{ end }}</td>
+        <td><a hx-get="/admin/urls/{{ .IDLink }}/edit">Edit</a><a hx-delete="/admin/urls/{{ .IDLink }}">Delete</a></td>
+    </tr>
     {{ end }}
-</ul>
-
-{{/*<h2>Actions</h2>
-<form action="/admin/url/delete" method="post">
-    <label for="shorturl">Short URL:</label>
-    <input type="text" id="shorturl" name="shorturl" required>
-    <button type="submit">Delete</button>
-</form>*/}}
+</table>
 {{ end }}
+
+<h2>Actions</h2>
+
+<h3>Add short URL</h3>
+<form hx-post="/admin/url/add" hx-target="#add-url">
+    <label for="shorturl">URL path (optional):</label>
+    https://yourdomain.com/<input type="text" id="shorturl" name="shorturl">
+    <br>
+    <label for="longurl">Redirect URL:</label>
+    <input type="url" id="longurl" name="longurl" required>
+    <br>
+    <button type="submit" hx->Add</button>
+</form>
+
 
 {{/* <p><a href="/admin/logout">Logout</a></p> */}}
 {{ end }}

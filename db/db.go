@@ -124,12 +124,14 @@ func GetURLRedirect(src string) (string, error) {
 }
 
 type URL struct {
-	ShortURL string
-	LongURL  string
+	IDLink   int
+	Src      string
+	Dst      string
+	IsCustom bool
 }
 
 func GetUserURLs(username string) ([]URL, error) {
-	rows, err := db.Query("SELECT src, dst FROM Link WHERE owner = (SELECT id_user FROM User WHERE username = ?)", username)
+	rows, err := db.Query("SELECT id_link, src, dst, is_custom FROM Link WHERE owner = (SELECT id_user FROM User WHERE username = ?)", username)
 	if err != nil {
 		log.Println("Error getting URLs from DB:", err)
 		return nil, err
@@ -139,11 +141,13 @@ func GetUserURLs(username string) ([]URL, error) {
 	urls := []URL{}
 	for rows.Next() {
 		var src, dst string
-		if err := rows.Scan(&src, &dst); err != nil {
+		var id_link int
+		var is_custom bool
+		if err := rows.Scan(&id_link, &src, &dst, &is_custom); err != nil {
 			log.Println("Error scanning URLs from DB:", err)
 			return nil, err
 		}
-		urls = append(urls, URL{ShortURL: src, LongURL: dst})
+		urls = append(urls, URL{IDLink: id_link, Src: src, Dst: dst, IsCustom: is_custom})
 	}
 
 	return urls, nil
