@@ -49,6 +49,13 @@ func adminHandler(w http.ResponseWriter, r *http.Request) {
 
 func loginHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
+		// Redirect authenticated users to the admin panel
+		sessionid, err := db.GetSessionIDFromRequest(r)
+		if err == nil && db.IsSessionIDValid(sessionid) {
+			http.Redirect(w, r, "/admin", http.StatusFound)
+			return
+		}
+
 		// Parse the login template
 		loginTemplate, err := template.ParseFiles(templatesDir+"base.html", templatesDir+"admin/login.html")
 		if err != nil {
