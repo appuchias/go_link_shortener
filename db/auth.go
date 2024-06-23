@@ -8,13 +8,16 @@ import (
 	"time"
 )
 
+const authCookieName = "sessionid"
+const authHeaderName = "X-Api-Key"
+
 func GetKeyFromRequest(r *http.Request) (string, error) {
-	cookie, err := r.Cookie("sessionid")
+	cookie, err := r.Cookie(authCookieName)
 	if err == nil {
 		return cookie.Value, nil
 	}
 
-	header := r.Header.Get("X-Api-Key")
+	header := r.Header.Get(authHeaderName)
 	if header != "" {
 		return header, nil
 	}

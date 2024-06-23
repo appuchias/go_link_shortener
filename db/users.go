@@ -93,13 +93,12 @@ func getUserIDFromSessionID(sessionid string) (int, error) {
 
 // Get the username from the session ID
 func GetCurrentUsername(r *http.Request) (string, error) {
-	cookie, err := r.Cookie("sessionid")
+	sessionid, err := GetKeyFromRequest(r)
 	if err != nil {
-		log.Println("Error getting sessionid cookie:", err)
 		return "", err
 	}
 
-	id_user, err := getUserIDFromSessionID(cookie.Value)
+	id_user, err := getUserIDFromSessionID(sessionid)
 	if err != nil {
 		return "", err
 	}
