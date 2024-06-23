@@ -65,6 +65,10 @@ func createTables(db *sql.DB) {
 	if err != nil {
 		log.Fatal("Error creating Session table:", err)
 	}
+	_, err = db.Exec(`CREATE INDEX IF NOT EXISTS "index_session_key" ON "Session" ("key");`)
+	if err != nil {
+		log.Fatal("Error creating index on Session table:", err)
+	}
 
 	// Link
 	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS Link (
