@@ -35,7 +35,16 @@ func server() *http.Server {
 			return
 		}
 
+		// Get last modified time
+		fi, err := os.Stat("static/favicon.ico")
+		if err != nil {
+			log.Println("Favicon stat error:", err)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+
 		w.Header().Set("Content-Type", "image/png")
+		w.Header().Set("Last-Modified", fi.ModTime().UTC().Format(http.TimeFormat))
 		w.Write(imgbuf)
 	})
 	router.HandleFunc("/{route}", shortenerHandler)
