@@ -61,6 +61,5 @@ func shortenerHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Not found", http.StatusNotFound)
 	}
 
-	http.Redirect(w, r, dst, http.StatusTemporaryRedirect)
-
+	http.Redirect(w, r, dst, http.StatusMovedPermanently)
 }
