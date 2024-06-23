@@ -3,6 +3,7 @@ package db
 import (
 	"database/sql"
 	"log"
+	"time"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -114,4 +115,22 @@ func GetURLRedirect(src string) (string, error) {
 		return "", err
 	}
 	return dst, nil
+}
+
+func IsSessionIDValid(sessionid string) bool {
+	var valid_from, valid_until int64
+	err := db.QueryRow("SELECT valid_from, valid_until FROM Session WHERE key = ?", sessionid).Scan(&valid_from, &valid_until)
+	if err == sql.ErrNoRows {
+		// log.Println("No rows found")
+		return false
+	} else if err != nil {
+		log.Println("Error checking if sessionid is valid:", err)
+		return false
+	}
+
+	if valid_from < time.Now().Unix() && valid_until > time.Now().Unix() {
+		return true
+	}
+
+	return false
 }
