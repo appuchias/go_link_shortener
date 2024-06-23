@@ -8,6 +8,16 @@ import (
 	"time"
 )
 
+func GetSessionIDFromRequest(r *http.Request) (string, error) {
+	cookie, err := r.Cookie("sessionid")
+	if err != nil {
+		log.Println("Error getting sessionid cookie:", err)
+		return "", err
+	}
+
+	return cookie.Value, nil
+}
+
 func HashPassword(password, salt string) string {
 	hash := sha512.Sum512([]byte(salt + password))
 
@@ -39,24 +49,12 @@ func IsAPIKeyValid(sessionid string) bool {
 	return valid_from < int(time.Now().Unix()) && valid_until > int(time.Now().Unix()) && api
 }
 
-// Check if the request user is authenticated
-func IsUserAuthed(r *http.Request) bool {
-	cookie, err := r.Cookie("sessionid")
+func InvalidateSessionID(sessionid string) error {
+	_, err := db.Exec("UPDATE Session SET valid_until = ? WHERE key = ?", int(time.Now().Unix()), sessionid)
 	if err != nil {
-		log.Println("Error getting sessionid cookie:", err)
-		return false
+		log.Println("Error invalidating sessionid from DB:", err)
+		return err
 	}
 
-	return IsSessionIDValid(cookie.Value)
-}
-
-// Check if the API request is authenticated
-func IsAPIAuthed(r *http.Request) bool {
-	cookie, err := r.Cookie("sessionid")
-	if err != nil {
-		log.Println("Error getting sessionid cookie:", err)
-		return false
-	}
-
-	return IsAPIKeyValid(cookie.Value)
+	return nil
 }

@@ -117,6 +117,12 @@ func logoutHandler(w http.ResponseWriter, r *http.Request) {
 		MaxAge: -1,
 	})
 
+	// Invalidate the session ID
+	sessionid, err := db.GetSessionIDFromRequest(r)
+	if err == nil {
+		db.InvalidateSessionID(sessionid)
+	}
+
 	// Redirect to the login page
 	http.Redirect(w, r, "/admin/login", http.StatusSeeOther)
 }

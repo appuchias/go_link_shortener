@@ -21,7 +21,9 @@ func RequireAuth(next http.Handler) http.Handler {
 			}
 		}
 
-		if !db.IsUserAuthed(r) {
+		// Validate the session
+		sessionid, err := db.GetSessionIDFromRequest(r)
+		if err != nil || sessionid == "" || !db.IsSessionIDValid(sessionid) {
 			http.Redirect(w, r, "/admin/login?next="+r.URL.Path, http.StatusSeeOther)
 			return
 		}
