@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/appuchias/go_link_shortener/admin"
 	"github.com/appuchias/go_link_shortener/db"
@@ -25,6 +26,17 @@ func main() {
 func Server() *http.Server {
 	router := http.NewServeMux()
 	router.Handle("GET /admin/", middleware.IsAuthed(http.StripPrefix("/admin", admin.AdminRouter)))
+	router.HandleFunc("GET /favicon.ico", func(w http.ResponseWriter, r *http.Request) {
+		imgbuf, err := os.ReadFile("static/favicon.ico")
+		if err != nil {
+			log.Println("Favicon reading error:", err)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "image/png")
+		w.Write(imgbuf)
+	})
 	router.HandleFunc("GET /", shortenerHandler)
 	router.HandleFunc("GET /{route}", shortenerHandler)
 
@@ -44,7 +56,6 @@ func Server() *http.Server {
 }
 
 func shortenerHandler(w http.ResponseWriter, r *http.Request) {
-	var err error
 	route := r.PathValue("route")
 
 	if route == "" || route == "admin" {
@@ -54,11 +65,8 @@ func shortenerHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Get the URL from the database and do the redirect
 	var dst string
-	dst, err = db.GetURLRedirect(route)
-	if err != nil {
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
-	}
-	if dst == "" {
+	dst, err := db.GetURLRedirect(route)
+	if err != nil || dst == "" {
 		http.Error(w, "Not found", http.StatusNotFound)
 	}
 

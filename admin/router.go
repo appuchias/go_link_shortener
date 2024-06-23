@@ -2,11 +2,23 @@ package admin
 
 import (
 	"fmt"
+	"html/template"
 	"log"
 	"net/http"
 )
 
+const templatesDir = "templates/"
+
 var AdminRouter = http.NewServeMux()
+
+func check(err error, w http.ResponseWriter, msg string) bool {
+	if err != nil {
+		log.Fatalf("%s: %s", msg, err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+	}
+
+	return err != nil
+}
 
 func init() {
 	log.Println("Admin router initialized")
@@ -22,7 +34,20 @@ func adminHandler(w http.ResponseWriter, r *http.Request) {
 
 func loginHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
-		fmt.Fprint(w, "Login page")
+		// fmt.Fprint(w, "Login page")
+
+		// Parse the login template
+		loginTemplate, err := template.ParseFiles(templatesDir+"base.html", templatesDir+"admin/login.html")
+		if check(err, w, "Error parsing login template") {
+			return
+		}
+
+		// Execute the login template
+		err = loginTemplate.Execute(w, struct{ Title string }{Title: "Login"})
+		if check(err, w, "Error executing login template") {
+			return
+		}
+
 		return
 	}
 
@@ -31,6 +56,10 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	// http.SetCookie(w, &http.Cookie{
 	// 	Name:  "sessionid",
 	// 	Value: "",
+	//	Path:   "/",
+	//	HttpOnly: true, // No JS
+	// //	Secure: true, // HTTPS only
+	//	MaxAge: 3600,
 	// })
 
 	// // Redirect to the next page
