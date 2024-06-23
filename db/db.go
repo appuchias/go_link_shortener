@@ -58,7 +58,7 @@ func createTables(db *sql.DB) {
 		valid_from INTEGER,
 		valid_until INTEGER,
 		key TEXT NOT NULL,
-		api INTEGER NOT NULL DEFAULT 0,
+		api BOOLEAN NOT NULL DEFAULT 0,
 		PRIMARY KEY (id_user, valid_from),
 		FOREIGN KEY (id_user) REFERENCES User(id_user)
 	);`)
