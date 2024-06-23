@@ -17,7 +17,7 @@ func init() {
 	urlsRouter.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Not implemented", http.StatusNotImplemented)
 	})
-	urlsRouter.HandleFunc("GET /{id_link}", editableURLHandler)
+	urlsRouter.HandleFunc("GET /{id_link}/edit", editableURLHandler)
 	urlsRouter.HandleFunc("POST /{id_link}", addURLHandler)
 	urlsRouter.HandleFunc("PUT /{id_link}", updateURLHandler)
 	urlsRouter.HandleFunc("DELETE /{id_link}", deleteURLHandler)
