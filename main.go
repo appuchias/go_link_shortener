@@ -24,13 +24,14 @@ func main() {
 
 func Server() *http.Server {
 	router := http.NewServeMux()
-	router.Handle("GET /admin/", http.StripPrefix("/admin", admin.AdminRouter))
+	router.Handle("GET /admin/", middleware.IsAuthed(http.StripPrefix("/admin", admin.AdminRouter)))
 	router.HandleFunc("GET /", shortenerHandler)
 	router.HandleFunc("GET /{route}", shortenerHandler)
 
 	middlewareStack := middleware.Chain(
 		middleware.Logging,
-		middleware.IsAuthed,
+		// middleware.IsAuthed,
+		middleware.SetHeaders,
 	)
 
 	s := &http.Server{
