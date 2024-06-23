@@ -3,7 +3,6 @@ package db
 import (
 	"database/sql"
 	"log"
-	"time"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -28,10 +27,11 @@ func init() {
 }
 
 func createTables(db *sql.DB) {
+	var err error
 	// Diagram made in dbdiagram.io using DBML (https://dbdiagram.io/d/Go-Link-Shortener-66775a2e5a764b3c72289b5b)
 
 	// User
-	_, err := db.Exec(`CREATE TABLE IF NOT EXISTS User (
+	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS User (
 		id_user INTEGER PRIMARY KEY,
 		username TEXT UNIQUE NOT NULL,
 		salt TEXT NOT NULL,
@@ -46,7 +46,7 @@ func createTables(db *sql.DB) {
 		log.Fatal("Error counting users in User table:", err)
 	}
 	if user_count == 0 {
-		_, err = db.Exec(`INSERT INTO User (username, salt, pwd) VALUES ("admin", "salt", "password");`)
+		err = CreateUser("admin", "password")
 		if err != nil {
 			log.Fatal("Error inserting user into User table:", err)
 		}
@@ -104,6 +104,8 @@ func Close() {
 	db.Close()
 }
 
+// Links
+
 func GetURLRedirect(src string) (string, error) {
 	var dst string
 	err := db.QueryRow("SELECT dst FROM Link WHERE src = ?", src).Scan(&dst)
@@ -115,37 +117,4 @@ func GetURLRedirect(src string) (string, error) {
 		return "", err
 	}
 	return dst, nil
-}
-
-// Get the information of the session ID
-func getSessionIDDetails(sessionid string) (int, int, int, bool, error) {
-	var id_user, valid_from, valid_until int
-	var api bool
-	err := db.QueryRow("SELECT id_user, valid_from, valid_until, api FROM Session WHERE key = ?", sessionid).Scan(&id_user, &valid_from, &valid_until, &api)
-	if err != nil {
-		log.Println("Error getting sessionid details from DB:", err)
-		return 0, 0, 0, false, err
-	}
-
-	return id_user, valid_from, valid_until, api, nil
-}
-
-// The session ID exists, is valid, and is not an API key
-func IsSessionIDValid(sessionid string) bool {
-	_, valid_from, valid_until, api, err := getSessionIDDetails(sessionid)
-	if err != nil {
-		return false
-	}
-
-	return valid_from < int(time.Now().Unix()) && valid_until > int(time.Now().Unix()) && !api
-}
-
-// The session ID exists, is valid, and is an API key
-func IsAPIKeyValid(apikey string) bool {
-	_, valid_from, valid_until, api, err := getSessionIDDetails(apikey)
-	if err != nil {
-		return false
-	}
-
-	return valid_from < int(time.Now().Unix()) && valid_until > int(time.Now().Unix()) && api
 }

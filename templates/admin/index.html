@@ -1,0 +1,10 @@
+{{ define "title" }}Admin{{ end }}
+
+{{ define "content" }}
+<h1>Admin page</h1>
+
+<p>Welcome, {{ .Username }}!</p>
+
+<p><a href="/admin/urls">URLs</a></p>
+<p><a href="/admin/logout">Logout</a></p>
+{{ end }}

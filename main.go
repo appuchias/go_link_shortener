@@ -19,14 +19,15 @@ func main() {
 	defer database.Close()
 
 	// Start the server
-	s := Server()
+	s := server()
 	log.Fatal(s.ListenAndServe())
 }
 
-func Server() *http.Server {
+func server() *http.Server {
 	router := http.NewServeMux()
-	router.Handle("GET /admin/", middleware.IsAuthed(http.StripPrefix("/admin", admin.AdminRouter)))
-	router.HandleFunc("GET /favicon.ico", func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc("/", http.RedirectHandler("/admin/", http.StatusMovedPermanently).ServeHTTP)
+	router.Handle("/admin/", middleware.RequireAuth(http.StripPrefix("/admin", admin.AdminRouter)))
+	router.HandleFunc("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {
 		imgbuf, err := os.ReadFile("static/favicon.ico")
 		if err != nil {
 			log.Println("Favicon reading error:", err)
@@ -37,8 +38,7 @@ func Server() *http.Server {
 		w.Header().Set("Content-Type", "image/png")
 		w.Write(imgbuf)
 	})
-	router.HandleFunc("GET /", shortenerHandler)
-	router.HandleFunc("GET /{route}", shortenerHandler)
+	router.HandleFunc("/{route}", shortenerHandler)
 
 	middlewareStack := middleware.Chain(
 		middleware.Logging,
