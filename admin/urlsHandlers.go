@@ -140,7 +140,7 @@ func updateURLHandler(w http.ResponseWriter, r *http.Request) {
 	// Get the fields from the form
 	src := r.FormValue("shorturl")
 	dst := r.FormValue("longurl")
-	isCustom := src != url.Src
+	isCustom := src != url.Src || url.IsCustom
 
 	if src == "" {
 		isCustom = false
