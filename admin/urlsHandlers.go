@@ -10,6 +10,8 @@ import (
 	"github.com/appuchias/go_link_shortener/db"
 )
 
+const shortURLLength = 6
+
 func checkHtmxHeader(r *http.Request) bool {
 	return r.Header.Get("HX-Request") == "true"
 }
@@ -64,7 +66,7 @@ func addURLHandler(w http.ResponseWriter, r *http.Request) {
 
 	if src == "" {
 		isCustom = false
-		src = db.RandString(6)
+		src = db.RandString(shortURLLength)
 	}
 
 	sessionid, err := db.GetKeyFromRequest(r)
