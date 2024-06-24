@@ -21,7 +21,7 @@ It may include some statistics in the future.
 1. Open a browser and navigate to `http://localhost:8000`
 
 > **Note:** The current username/password is `admin`/`password`.
-> Password change is not implemented yet.
+> Please change it as soon as possible from the admin panel.
 
 ## License
 

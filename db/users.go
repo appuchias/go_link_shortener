@@ -41,6 +41,18 @@ func CreateUser(username string, password string) error {
 	return nil
 }
 
+func ChangePassword(id_user int, password string) error {
+	salt := RandString(16)
+
+	_, err := db.Exec("UPDATE User SET salt = ?, pwd = ? WHERE id_user = ?", salt, HashPassword(password, salt), id_user)
+	if err != nil {
+		log.Println("Error changing password in DB:", err)
+		return err
+	}
+
+	return nil
+}
+
 func getUsername(id_user int) (string, error) {
 	var username string
 	err := db.QueryRow("SELECT username FROM User WHERE id_user = ?", id_user).Scan(&username)

@@ -147,3 +147,93 @@ func logoutHandler(w http.ResponseWriter, r *http.Request) {
 	// Redirect to the login page
 	http.Redirect(w, r, "/admin/login", http.StatusSeeOther)
 }
+
+func passwordHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+		// Redirect unauthenticated users to the login page
+		sessionid, err := db.GetKeyFromRequest(r)
+		if err != nil || !db.IsSessionIDValid(sessionid) {
+			http.Redirect(w, r, "/admin/login?next=/admin/password", http.StatusFound)
+			return
+		}
+
+		// Parse the password template
+		passwordTemplate, err := template.ParseFiles(templatesDir+"base.html", templatesDir+"admin/password.html")
+		if err != nil {
+			log.Println("Error parsing password template", err)
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+
+		// Execute the password template
+		err = passwordTemplate.Execute(w, struct {
+			Title string
+			Next  string
+		}{Title: "Change Password", Next: r.URL.Query().Get("next")})
+		if err != nil {
+			log.Println("Error executing password template", err)
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+
+		return
+	}
+
+	// Redirect unauthenticated users to the login page
+	sessionid, err := db.GetKeyFromRequest(r)
+	if err != nil || !db.IsSessionIDValid(sessionid) {
+		http.Redirect(w, r, "/admin/login?next=/admin/password", http.StatusFound)
+		return
+	}
+
+	// Parse the form
+	err = r.ParseForm()
+	if err != nil {
+		log.Println("Error parsing form")
+		http.Error(w, "Bad request", http.StatusBadRequest)
+		return
+	}
+
+	// Validate the password
+	username, err := db.GetCurrentUsername(r)
+	if err != nil {
+		log.Println("Error getting current username", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+	id_user, salt, hashedPwd, err := db.GetUserDetails(username)
+	if err != nil {
+		log.Println("Error getting user details", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+	if db.HashPassword(r.FormValue("password"), salt) != hashedPwd {
+		log.Println("Invalid credentials")
+		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
+		return
+	}
+	if r.FormValue("newpassword") != r.FormValue("newpassword2") {
+		log.Println("Passwords don't match")
+		http.Error(w, "Passwords don't match", http.StatusBadRequest)
+		return
+	}
+
+	// Change the password
+	err = db.ChangePassword(id_user, r.FormValue("newpassword"))
+	if err != nil {
+		log.Println("Error changing password", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+
+	// Remove the session IDs
+	db.InvalidateAllSessionIDs(id_user)
+
+	// Redirect to the next page
+	if r.URL.Query().Get("next") != "" {
+		http.Redirect(w, r, r.URL.Query().Get("next"), http.StatusFound)
+	}
+
+	// Redirect to the admin panel
+	http.Redirect(w, r, "/admin", http.StatusFound)
+}

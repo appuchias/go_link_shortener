@@ -65,3 +65,14 @@ func InvalidateSessionID(sessionid string) error {
 
 	return nil
 }
+
+func InvalidateAllSessionIDs(id_user int) error {
+	now := int(time.Now().Unix())
+	_, err := db.Exec("UPDATE Session SET valid_until = ? WHERE id_user = ? AND valid_until > ?", now, id_user, now)
+	if err != nil {
+		log.Println("Error invalidating sessionids from DB:", err)
+		return err
+	}
+
+	return nil
+}

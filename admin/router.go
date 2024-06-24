@@ -13,6 +13,8 @@ func init() {
 	AdminRouter.HandleFunc("POST /login", loginHandler)
 	AdminRouter.HandleFunc("GET /login", loginHandler)
 	AdminRouter.HandleFunc("GET /logout", logoutHandler)
+	AdminRouter.HandleFunc("GET /password", passwordHandler)
+	AdminRouter.HandleFunc("POST /password", passwordHandler)
 
 	urlsRouter.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Not implemented", http.StatusNotImplemented)
