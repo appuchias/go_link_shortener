@@ -7,6 +7,7 @@ import (
 
 type URL struct {
 	IDLink   int
+	Owner    int
 	Src      string
 	Dst      string
 	IsCustom bool
@@ -26,7 +27,7 @@ func GetURLRedirect(src string) (string, error) {
 }
 
 func GetUserURLs(username string) ([]URL, error) {
-	rows, err := db.Query("SELECT id_link, src, dst, is_custom FROM Link WHERE owner = (SELECT id_user FROM User WHERE username = ?)", username)
+	rows, err := db.Query("SELECT id_link, owner, src, dst, is_custom FROM Link WHERE owner = (SELECT id_user FROM User WHERE username = ?)", username)
 	if err != nil {
 		log.Println("Error getting URLs from DB:", err)
 		return nil, err
@@ -36,13 +37,13 @@ func GetUserURLs(username string) ([]URL, error) {
 	urls := []URL{}
 	for rows.Next() {
 		var src, dst string
-		var id_link int
-		var is_custom bool
-		if err := rows.Scan(&id_link, &src, &dst, &is_custom); err != nil {
+		var idLink, idUser int
+		var isCustom bool
+		if err := rows.Scan(&idLink, &idUser, &src, &dst, &isCustom); err != nil {
 			log.Println("Error scanning URLs from DB:", err)
 			return nil, err
 		}
-		urls = append(urls, URL{IDLink: id_link, Src: src, Dst: dst, IsCustom: is_custom})
+		urls = append(urls, URL{IDLink: idLink, Owner: idUser, Src: src, Dst: dst, IsCustom: isCustom})
 	}
 
 	return urls, nil
@@ -50,13 +51,14 @@ func GetUserURLs(username string) ([]URL, error) {
 
 func GetURLDetails(id_link int) (URL, error) {
 	var src, dst string
+	var idUser int
 	var isCustom bool
-	err := db.QueryRow("SELECT src, dst, is_custom FROM Link WHERE id_link = ?", id_link).Scan(&src, &dst, &isCustom)
+	err := db.QueryRow("SELECT owner, src, dst, is_custom FROM Link WHERE id_link = ?", id_link).Scan(&idUser, &src, &dst, &isCustom)
 	if err != nil {
 		log.Println("Error getting URL details from DB:", err)
 		return URL{}, err
 	}
-	return URL{IDLink: id_link, Src: src, Dst: dst, IsCustom: isCustom}, nil
+	return URL{IDLink: id_link, Owner: idUser, Src: src, Dst: dst, IsCustom: isCustom}, nil
 }
 
 func AddURL(owner int, src string, dst string, isCustom bool) error {
