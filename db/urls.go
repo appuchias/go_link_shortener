@@ -70,6 +70,15 @@ func AddURL(owner int, src string, dst string, isCustom bool) error {
 	return nil
 }
 
+func UpdateURL(id_link int, src string, dst string, isCustom bool) error {
+	_, err := db.Exec("UPDATE Link SET src = ?, dst = ?, is_custom = ? WHERE id_link = ?", src, dst, isCustom, id_link)
+	if err != nil {
+		log.Println("Error updating URL in DB:", err)
+		return err
+	}
+	return nil
+}
+
 func DeleteURL(id_link int) error {
 	_, err := db.Exec("DELETE FROM Link WHERE id_link = ?", id_link)
 	if err != nil {

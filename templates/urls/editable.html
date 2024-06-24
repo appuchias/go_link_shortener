@@ -1,15 +1,13 @@
 <tr id="row-{{ .IDLink }}" style="background-color: #ffc;">
-    <form>
-        <td><span style="color: #7f7f7f">https://yourdomain.com/</span><input type="text" id="src" value="{{ .Src }}">
-        </td>
-        <td><input type="text" id="dst" value="{{ .Dst }}"></td>
-        <td>{{ if .IsCustom }}Yes{{ else }}No{{ end }}</td>
-        <td>
-            <input type="submit" value="Save" hx-put="/admin/urls/{{ .IDLink }}" hx-target="#row-{{ .IDLink }}"
-                hx-swap="outerHTML">
-            <input type="submit" value="Cancel" onclick="location.reload();">
-            <!-- <a hx-put="/admin/urls/{{ .IDLink }}" hx-target="#row-{{ .IDLink }}" hx-swap="outerHTML">Save</a> -->
-            <!-- <a href="#" onclick="location.reload();">Cancel</a> -->
-        </td>
-    </form>
+    <td>
+        <span style="color: #7f7f7f">https://domain.tld/</span><input type="text" id="shorturl" name="shorturl"
+            value="{{ .Src }}">
+    </td>
+    <td><input type="url" id="longurl" name="longurl" value="{{ .Dst }}" required></td>
+    <td>{{ if .IsCustom }}Yes{{ else }}No{{ end }}</td>
+    <td>
+        <input type="submit" value="Save" hx-put="/admin/urls/{{ .IDLink }}" hx-target="#row-{{ .IDLink }}"
+            hx-swap="outerHTML" hx-include="closest tr">
+        <input type="submit" value="Cancel" onclick="location.reload();">
+    </td>
 </tr>

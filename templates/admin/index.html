@@ -16,12 +16,16 @@
     </tr>
     {{ range .URLs }}
     <tr id="row-{{ .IDLink }}">
-        <td><span style="color: #7f7f7f">https://yourdomain.com/</span>{{ .Src }}</td>
+        <td><span style="color: #7f7f7f">https://domain.tld/</span>{{ .Src }}</td>
         <td>{{ .Dst }}</td>
         <td>{{ if .IsCustom }}Yes{{ else }}No{{ end }}</td>
         <td>
-            <a hx-get="/admin/urls/edit/{{ .IDLink }}" hx-target="#row-{{ .IDLink }}" hx-swap="outerHTML">Edit</a>
-            <a hx-delete="/admin/urls/{{ .IDLink }}" hx-target="#row-{{ .IDLink }}" hx-swap="outerHTML">Delete</a>
+            <button hx-get="/admin/urls/edit/{{ .IDLink }}" hx-target="#row-{{ .IDLink }}"
+                hx-swap="outerHTML">Edit</button>
+            <button hx-delete="/admin/urls/{{ .IDLink }}" hx-target="#row-{{ .IDLink }}"
+                hx-swap="outerHTML">Delete</button>
+            <!-- <a hx-get="/admin/urls/edit/{{ .IDLink }}" hx-target="#row-{{ .IDLink }}" hx-swap="outerHTML">Edit</a> -->
+            <!-- <a hx-delete="/admin/urls/{{ .IDLink }}" hx-target="#row-{{ .IDLink }}" hx-swap="outerHTML">Delete</a> -->
     </tr>
     {{ end }}
 </table>
@@ -32,7 +36,7 @@
 <h3>Add short URL</h3>
 <form action="/admin/urls/add" method="post">
     <label for="shorturl">URL path (optional):</label>
-    https://yourdomain.com/<input type="text" id="shorturl" name="shorturl">
+    https://domain.tld/<input type="text" id="shorturl" name="shorturl">
     <br>
     <label for="longurl">Redirect URL:</label>
     <input type="url" id="longurl" name="longurl" required>
