@@ -6,8 +6,10 @@
     <td><input type="url" id="longurl" name="longurl" value="{{ .Dst }}" required></td>
     <td>{{ if .IsCustom }}Yes{{ else }}No{{ end }}</td>
     <td>
-        <input type="submit" value="Save" hx-put="/admin/urls/{{ .IDLink }}" hx-target="#row-{{ .IDLink }}"
+        <button hx-put="/admin/urls/{{ .IDLink }}" hx-target="#row-{{ .IDLink }}"
             hx-swap="outerHTML" hx-include="closest tr">
-        <input type="submit" value="Cancel" onclick="location.reload();">
+            Save
+        </button>
+        <button onclick="location.reload();">Cancel</button>
     </td>
 </tr>

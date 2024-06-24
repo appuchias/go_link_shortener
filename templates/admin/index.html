@@ -24,8 +24,6 @@
                 hx-swap="outerHTML">Edit</button>
             <button hx-delete="/admin/urls/{{ .IDLink }}" hx-target="#row-{{ .IDLink }}"
                 hx-swap="outerHTML">Delete</button>
-            <!-- <a hx-get="/admin/urls/edit/{{ .IDLink }}" hx-target="#row-{{ .IDLink }}" hx-swap="outerHTML">Edit</a> -->
-            <!-- <a hx-delete="/admin/urls/{{ .IDLink }}" hx-target="#row-{{ .IDLink }}" hx-swap="outerHTML">Delete</a> -->
     </tr>
     {{ end }}
 </table>
