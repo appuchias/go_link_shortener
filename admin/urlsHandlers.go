@@ -29,7 +29,7 @@ func editableURLHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	editableTemplate, err := template.ParseFiles(templatesDir + "urls/editable.html")
+	editableTemplate, err := template.ParseFiles(templatesDir + "admin/editable.html")
 	if err != nil {
 		log.Println("Error parsing editable template", err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
