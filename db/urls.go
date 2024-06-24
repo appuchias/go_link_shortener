@@ -69,3 +69,12 @@ func AddURL(owner int, src string, dst string, isCustom bool) error {
 	}
 	return nil
 }
+
+func DeleteURL(id_link int) error {
+	_, err := db.Exec("DELETE FROM Link WHERE id_link = ?", id_link)
+	if err != nil {
+		log.Println("Error deleting URL from DB:", err)
+		return err
+	}
+	return nil
+}

@@ -1,6 +1,7 @@
 package admin
 
 import (
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
@@ -95,5 +96,52 @@ func updateURLHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func deleteURLHandler(w http.ResponseWriter, r *http.Request) {
-	http.Error(w, "Not implemented", http.StatusNotImplemented)
+	if !checkHtmxHeader(r) {
+		http.Error(w, "Not implemented", http.StatusNotImplemented)
+		return
+	}
+
+	// Get the URL ID from the query string as int
+	id_link, err := strconv.Atoi(r.PathValue("id_link"))
+	if err != nil {
+		http.Error(w, "Bad request", http.StatusBadRequest)
+		return
+	}
+
+	url, err := db.GetURLDetails(id_link)
+	if err != nil {
+		log.Println("Error getting URL details", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+
+	// Current user ID
+	sessionid, err := db.GetKeyFromRequest(r)
+	if err != nil {
+		log.Println("Error getting session ID", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+
+	id_user, err := db.GetUserIDFromSessionID(sessionid)
+	if err != nil {
+		log.Println("Error getting user ID from session ID", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+
+	// Check if the user is the owner of the URL
+	if id_user != url.Owner {
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		return
+	}
+
+	err = db.DeleteURL(id_link)
+	if err != nil {
+		log.Println("Error deleting URL", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+
+	fmt.Fprintf(w, "<script>location.reload();</script>")
 }
